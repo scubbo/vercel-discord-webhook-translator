@@ -41,6 +41,12 @@ export default async function handler(
   if (!receivedSignature || receivedSignature !== secret) {
     const message = "Unauthorized";
     console.log(message);
+    // This isn't _terribly_ secure, but it's good enough for a simple webhook translator.
+    if (receivedSignature) {
+      console.log(`Received incorrect signature ${receivedSignature}`);
+    } else {
+      console.log("No signature received");
+    }
     res.status(401).json({ error: message });
     return;
   }
