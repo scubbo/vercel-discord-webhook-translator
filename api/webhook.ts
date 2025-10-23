@@ -1,12 +1,14 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { VercelWebhookPayload, DiscordWebhookPayload } from './types';
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { VercelWebhookPayload, DiscordWebhookPayload } from "./types";
 
 export default async function handler(
   req: VercelRequest,
-  res: VercelResponse
+  res: VercelResponse,
 ): Promise<void> {
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "POST") {
+    const message = "Method not allowed";
+    console.log(message);
+    res.status(405).json({ error: message });
     return;
   }
 
@@ -14,14 +16,18 @@ export default async function handler(
   const targetUrl = process.env.TARGET_URL;
 
   if (!secret || !targetUrl) {
-    res.status(500).json({ error: 'Server configuration error' });
+    const message = "Server configuration error";
+    console.log(message);
+    res.status(500).json({ error: message });
     return;
   }
 
-  const receivedSignature = req.headers['x-vercel-signature'];
+  const receivedSignature = req.headers["x-vercel-signature"];
 
   if (!receivedSignature || receivedSignature !== secret) {
-    res.status(401).json({ error: 'Unauthorized' });
+    const message = "Unauthorized";
+    console.log(message);
+    res.status(401).json({ error: message });
     return;
   }
 
@@ -31,17 +37,17 @@ export default async function handler(
   const deploymentUrl = payload.payload.url;
 
   const discordPayload: DiscordWebhookPayload = {
-    content: `Deployment succeeded! Commit message: \`${commitMessage}\`. Check it out [here](https://${deploymentUrl}/).`
+    content: `Deployment succeeded! Commit message: \`${commitMessage}\`. Check it out [here](https://${deploymentUrl}/).`,
   };
 
   try {
     const response = await fetch(targetUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        Accept: "application/json",
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(discordPayload)
+      body: JSON.stringify(discordPayload),
     });
 
     if (!response.ok) {
@@ -50,7 +56,7 @@ export default async function handler(
 
     res.status(200).json({ success: true });
   } catch (error) {
-    console.error('Error forwarding webhook:', error);
-    res.status(500).json({ error: 'Failed to forward webhook' });
+    console.error("Error forwarding webhook:", error);
+    res.status(500).json({ error: "Failed to forward webhook" });
   }
 }
