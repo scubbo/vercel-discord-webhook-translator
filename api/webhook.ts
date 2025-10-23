@@ -1,4 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
+import crypto from "crypto";
 
 interface VercelWebhookPayload {
   payload: {
@@ -13,6 +14,26 @@ interface VercelWebhookPayload {
 
 interface DiscordWebhookPayload {
   content: string;
+}
+
+function verifySignature(
+  body: string,
+  signature: string,
+  secret: string,
+): boolean {
+  const rawBodyBuffer = Buffer.from(body, "utf8");
+  const bodySignature = crypto
+    .createHmac("sha1", secret)
+    .update(rawBodyBuffer)
+    .digest("hex");
+  if (bodySignature !== signature) {
+    const message = "Unauthorized";
+    console.log(message);
+    console.log("Invalid signature");
+    return false;
+  } else {
+    return true;
+  }
 }
 
 export default async function handler(
@@ -38,15 +59,20 @@ export default async function handler(
 
   const receivedSignature = req.headers["x-vercel-signature"];
 
-  if (!receivedSignature || receivedSignature !== secret) {
+  if (!receivedSignature || typeof receivedSignature !== "string") {
     const message = "Unauthorized";
     console.log(message);
-    // This isn't _terribly_ secure, but it's good enough for a simple webhook translator.
-    if (receivedSignature) {
-      console.log(`Received incorrect signature ${receivedSignature}`);
-    } else {
-      console.log("No signature received");
-    }
+    console.log("No signature received");
+    res.status(401).json({ error: message });
+    return;
+  }
+
+  const rawBody = JSON.stringify(req.body);
+
+  if (!verifySignature(rawBody, receivedSignature, secret)) {
+    const message = "Unauthorized";
+    console.log(message);
+    console.log(`Signature verification failed`);
     res.status(401).json({ error: message });
     return;
   }
@@ -54,7 +80,10 @@ export default async function handler(
   const payload = req.body as VercelWebhookPayload;
 
   const commitMessage = payload.payload.deployment.meta.githubCommitMessage;
-  const deploymentUrl = payload.payload.url;
+  // const deploymentUrl = payload.payload.url;
+  // Hard-code to the main URL because general users don't have access past Deployment Protection - _could_ turn it off,
+  // but :shrug:
+  const deploymentUrl = "https://edh-elo-nextjs.vercel.app";
 
   const discordPayload: DiscordWebhookPayload = {
     content: `Deployment succeeded! Commit message: \`${commitMessage}\`. Check it out [here](https://${deploymentUrl}/).`,
