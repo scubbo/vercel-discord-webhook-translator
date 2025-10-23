@@ -2,9 +2,11 @@
   "name": "vercel-discord-webhook-translator",
   "version": "1.0.0",
   "description": "Translates Vercel webhooks to Discord format",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
-    "dev": "vercel dev",
-    "build": "tsc"
+    "dev": "vercel dev"
   },
   "dependencies": {
     "@vercel/node": "^4.0.0"
