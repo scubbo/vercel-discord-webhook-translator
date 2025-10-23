@@ -1,5 +1,19 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
-import type { VercelWebhookPayload, DiscordWebhookPayload } from "./types";
+import { VercelRequest, VercelResponse } from "@vercel/node";
+
+interface VercelWebhookPayload {
+  payload: {
+    deployment: {
+      meta: {
+        githubCommitMessage: string;
+      };
+    };
+    url: string;
+  };
+}
+
+interface DiscordWebhookPayload {
+  content: string;
+}
 
 export default async function handler(
   req: VercelRequest,
