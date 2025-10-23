@@ -86,7 +86,7 @@ export default async function handler(
   const deploymentUrl = "https://edh-elo-nextjs.vercel.app";
 
   const discordPayload: DiscordWebhookPayload = {
-    content: `Deployment succeeded! Commit message: \`${commitMessage}\`. Check it out [here](https://${deploymentUrl}/).`,
+    content: `Deployment succeeded! Commit message: \`${commitMessage}\`. Check it out [here](${deploymentUrl}/).`,
   };
 
   try {
