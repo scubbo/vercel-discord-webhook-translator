@@ -80,6 +80,7 @@ export default async function handler(
   const payload = req.body as VercelWebhookPayload;
 
   const commitMessage = payload.payload.deployment.meta.githubCommitMessage;
+  console.log("deployment metadata", JSON.stringify(payload.payload.deployment.meta, null, 2));
   // const deploymentUrl = payload.payload.url;
   // Hard-code to the main URL because general users don't have access past Deployment Protection - _could_ turn it off,
   // but :shrug:
