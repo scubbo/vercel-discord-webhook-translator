@@ -80,7 +80,12 @@ export default async function handler(
   const payload = req.body as VercelWebhookPayload;
 
   const commitMessage = payload.payload.deployment.meta.githubCommitMessage;
-  const metadata = payload.payload.deployment.meta as unknown as { githubOrg: string; githubRepo: string; githubCommitSha: string };
+  const metadata = payload.payload.deployment.meta as unknown as { githubOrg: string; githubRepo: string; githubCommitSha: string; githubCommitRef: string };
+  if (!(metadata.githubCommitRef === 'main')) {
+    const message = "Deployment not on main branch";
+    console.log(message);
+    return;
+  }
   const commitLink = `https://github.com/${metadata.githubOrg}/${metadata.githubRepo}/commit/${metadata.githubCommitSha}`;
   // const deploymentUrl = payload.payload.url;
   // Hard-code to the main URL because general users don't have access past Deployment Protection - _could_ turn it off,
