@@ -80,14 +80,15 @@ export default async function handler(
   const payload = req.body as VercelWebhookPayload;
 
   const commitMessage = payload.payload.deployment.meta.githubCommitMessage;
-  console.log("deployment metadata", JSON.stringify(payload.payload.deployment.meta, null, 2));
+  const metadata = payload.payload.deployment.meta as unknown as { githubOrg: string; githubRepo: string; githubCommitSha: string };
+  const commitLink = `https://github.com/${metadata.githubOrg}/${metadata.githubRepo}/commit/${metadata.githubCommitSha}`;
   // const deploymentUrl = payload.payload.url;
   // Hard-code to the main URL because general users don't have access past Deployment Protection - _could_ turn it off,
   // but :shrug:
   const deploymentUrl = "https://edh-elo-nextjs.vercel.app";
 
   const discordPayload: DiscordWebhookPayload = {
-    content: `Deployment succeeded! Commit message: \`${commitMessage}\`. Check it out [here](${deploymentUrl}/).`,
+    content: `Deployment succeeded! Commit message: \`${commitMessage}\`. See the commit [here](${commitLink}) and the site [here](${deploymentUrl}/).`,
   };
 
   try {
