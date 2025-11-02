@@ -79,7 +79,7 @@ export default async function handler(
 
   const payload = req.body as VercelWebhookPayload;
 
-  const commitMessage = payload.payload.deployment.meta.githubCommitMessage;
+  const commitTitle = payload.payload.deployment.meta.githubCommitMessage.split('\n')[0];
   const metadata = payload.payload.deployment.meta as unknown as { githubOrg: string; githubRepo: string; githubCommitSha: string; githubCommitRef: string };
   if (!(metadata.githubCommitRef === 'main')) {
     const message = "Deployment not on main branch";
@@ -93,7 +93,7 @@ export default async function handler(
   const deploymentUrl = "https://edh-elo-nextjs.vercel.app";
 
   const discordPayload: DiscordWebhookPayload = {
-    content: `Deployment succeeded! Commit message: \`${commitMessage}\`. See the commit [here](${commitLink}) and the site [here](${deploymentUrl}/).`,
+    content: `Deployment succeeded! Commit title: \`${commitTitle}\`. See the commit [here](${commitLink}) and the site [here](${deploymentUrl}/).`,
   };
 
   try {
